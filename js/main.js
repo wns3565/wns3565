@@ -141,10 +141,9 @@ function initApplyForm() {
   });
 }
 
-/* ---------- 3. 전국 현장실습 실시간 정보 (welfare.net 실습모집 게시판 공개 API 직접 연동) ---------- */
-const REALTIME_API_URL = "https://api.welfare.net/prm/na/ntt/selectNttList.do";
+/* ---------- 3. 전국 현장실습 실시간 정보 (GitHub Actions가 30분마다 welfare.net API를 대신 호출해 만든 data/realtime-data.json을 표시) ---------- */
+const REALTIME_DATA_URL = "data/realtime-data.json";
 const REALTIME_BOARD_URL = "https://www.welfare.net/prm/find-training-center/recruitment-trainees";
-const REALTIME_PAGES = 30; // 10건 x 30페이지 = 최신 300건
 
 function escapeHtml(str) {
   const div = document.createElement("div");
@@ -153,27 +152,10 @@ function escapeHtml(str) {
 }
 
 async function fetchRealtimeData() {
-  const requests = [];
-  for (let page = 1; page <= REALTIME_PAGES; page++) {
-    const url = `${REALTIME_API_URL}?bbsId=1703&searchType=orgNm&searchValue=&areaCode=&codeT=&pageIndex=10&currPage=${page}`;
-    requests.push(fetch(url).then((r) => r.json()));
-  }
-  const pages = await Promise.all(requests);
-  const rows = [];
-  pages.forEach((page) => {
-    const list = (page.nttListPaging && page.nttListPaging.list) || [];
-    list.forEach((item) => {
-      rows.push({
-        region: item.areaNm || "-",
-        category: item.codeT || "기타",
-        title: item.nttSj || "",
-        org: item.orgNm || item.regNm || "",
-        date: (item.regDt || "").replace(/\./g, "-"),
-        nttSn: item.nttSn,
-      });
-    });
-  });
-  return rows;
+  const res = await fetch(`${REALTIME_DATA_URL}?t=${Date.now()}`);
+  if (!res.ok) throw new Error(`데이터 파일을 불러올 수 없습니다 (${res.status})`);
+  const data = await res.json();
+  return { items: data.items || [], updatedAt: data.updatedAt || null };
 }
 
 async function initRealtimePage() {
@@ -194,13 +176,16 @@ async function initRealtimePage() {
   let activeRegion = "전체";
   let realtimeData = [];
   let currentPage = 1;
+  let dataUpdatedAt = null;
 
-  tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:32px; color:var(--text-light);">실시간 데이터를 불러오는 중입니다...</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:32px; color:var(--text-light);">데이터를 불러오는 중입니다...</td></tr>`;
 
   try {
-    realtimeData = await fetchRealtimeData();
+    const result = await fetchRealtimeData();
+    realtimeData = result.items;
+    dataUpdatedAt = result.updatedAt;
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:32px; color:var(--text-light);">실시간 데이터를 불러오지 못했습니다. 네트워크 연결을 확인한 뒤 새로고침해주세요.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:32px; color:var(--text-light);">데이터를 불러오지 못했습니다. 잠시 후 새로고침해주세요.</td></tr>`;
     return;
   }
 
@@ -308,17 +293,16 @@ async function initRealtimePage() {
     render();
   });
 
-  function updateTimestamp() {
-    const now = new Date();
-    const hh = String(now.getHours()).padStart(2, "0");
-    const mm = String(now.getMinutes()).padStart(2, "0");
-    const ss = String(now.getSeconds()).padStart(2, "0");
-    timeLabel.textContent = `${hh}:${mm}:${ss} 기준`;
+  if (dataUpdatedAt) {
+    const d = new Date(dataUpdatedAt);
+    const hh = String(d.getHours()).padStart(2, "0");
+    const mm = String(d.getMinutes()).padStart(2, "0");
+    timeLabel.textContent = `${hh}:${mm} 갱신`;
+  } else {
+    timeLabel.textContent = "";
   }
 
-  updateTimestamp();
   render();
-  setInterval(updateTimestamp, 1000);
 }
 
 /* ---------- 4. 문의남기기 폼 ---------- */
