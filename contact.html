@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>사회복지현장실습 정보 | 문의남기기</title>
+<meta name="description" content="사회복지현장실습 관련 문의하기">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-emoji">🌱</span>
+      <span>
+        사회복지현장실습
+        <span class="logo-sub">SOCIAL WELFARE FIELD PRACTICUM</span>
+      </span>
+    </a>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="index.html">사이트 소개</a></li>
+        <li><a href="apply.html">실습 과목 신청</a></li>
+        <li><a href="realtime.html">실시간 실습 정보</a></li>
+      </ul>
+    </nav>
+    <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+  </div>
+</header>
+
+<main>
+  <section class="page-hero">
+    <div class="container">
+      <span class="eyebrow">언제든 편하게 문의하세요</span>
+      <h1>문의남기기</h1>
+      <p class="lead">
+        실습 신청, 기관 매칭, 서류 안내 등 궁금한 점을 남겨주시면
+        영업일 기준 1~2일 내 답변드립니다.
+      </p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="container">
+      <div class="contact-grid">
+
+        <div class="contact-info-card">
+          <h3>연락처 안내</h3>
+
+          <div class="contact-info-item">
+            <div class="ci-icon">☎️</div>
+            <div>
+              <div class="ci-label">전화 문의</div>
+              <div class="ci-value">02-1234-5678</div>
+            </div>
+          </div>
+
+          <div class="contact-info-item">
+            <div class="ci-icon">✉️</div>
+            <div>
+              <div class="ci-label">이메일</div>
+              <div class="ci-value">info@swfieldwork.kr</div>
+            </div>
+          </div>
+
+          <div class="contact-info-item">
+            <div class="ci-icon">🕘</div>
+            <div>
+              <div class="ci-label">운영 시간</div>
+              <div class="ci-value">평일 09:00 ~ 18:00 (주말·공휴일 휴무)</div>
+            </div>
+          </div>
+
+          <div class="contact-info-item">
+            <div class="ci-icon">📍</div>
+            <div>
+              <div class="ci-label">주소</div>
+              <div class="ci-value">서울특별시 종로구 사회복지로 12, 3층</div>
+            </div>
+          </div>
+
+          <div class="faq-mini">
+            <details>
+              <summary>신청 후 답변까지 얼마나 걸리나요?</summary>
+              <p>영업일 기준 2~3일 이내 담당자가 연락드립니다.</p>
+            </details>
+            <details>
+              <summary>실습기관을 직접 선택할 수 있나요?</summary>
+              <p>희망 지역·분야를 신청서에 기재하시면 우선 매칭해드리며, 확정 여부는 기관 사정에 따라 달라질 수 있습니다.</p>
+            </details>
+            <details>
+              <summary>실습 중 문제가 생기면 어디에 연락하나요?</summary>
+              <p>담당 슈퍼바이저 또는 본 문의 페이지를 통해 즉시 연락 주시면 신속히 도와드립니다.</p>
+            </details>
+          </div>
+        </div>
+
+        <div class="form-wrap" style="margin:0;">
+          <form id="contact-form" novalidate>
+            <div class="form-row">
+              <div class="field">
+                <label for="c-name">이름<span class="req">*</span></label>
+                <input type="text" id="c-name" name="c-name" placeholder="홍길동" required>
+                <small class="hint">실명을 입력해주세요.</small>
+              </div>
+              <div class="field">
+                <label for="c-email">이메일<span class="req">*</span></label>
+                <input type="email" id="c-email" name="c-email" placeholder="example@email.com" required>
+                <small class="hint">답변 받으실 이메일을 입력해주세요.</small>
+              </div>
+            </div>
+
+            <div class="field full">
+              <label for="c-category">문의 유형<span class="req">*</span></label>
+              <select id="c-category" name="c-category" required>
+                <option value="">선택해주세요</option>
+                <option>과목 신청 관련</option>
+                <option>실습기관 매칭 관련</option>
+                <option>실시간 정보 오류 제보</option>
+                <option>서류/행정 관련</option>
+                <option>기타 문의</option>
+              </select>
+              <small class="hint">문의 성격에 가장 가까운 항목을 선택해주세요.</small>
+            </div>
+
+            <div class="field full">
+              <label for="c-title">제목<span class="req">*</span></label>
+              <input type="text" id="c-title" name="c-title" placeholder="문의 제목을 입력해주세요" required>
+              <small class="hint">간단하고 명확하게 작성해주세요.</small>
+            </div>
+
+            <div class="field full">
+              <label for="c-content">문의 내용<span class="req">*</span></label>
+              <textarea id="c-content" name="c-content" placeholder="문의하실 내용을 자세히 작성해주세요." required></textarea>
+              <small class="hint">정확한 답변을 위해 관련 정보를 함께 남겨주세요.</small>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">문의 보내기</button>
+
+            <div id="contact-msg" class="form-msg"></div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="logo">
+          <span class="logo-emoji">🌱</span>
+          <span>사회복지현장실습</span>
+        </div>
+        <p>예비 사회복지사를 위한 현장실습 정보 플랫폼입니다. 신청부터 실시간 현황까지 한 번에 확인하세요.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>바로가기</h4>
+          <ul>
+            <li><a href="index.html">사이트 소개</a></li>
+            <li><a href="apply.html">실습 과목 신청</a></li>
+            <li><a href="realtime.html">실시간 실습 정보</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2026 사회복지현장실습 정보센터. All rights reserved.
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

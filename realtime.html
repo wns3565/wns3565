@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>사회복지현장실습 정보 | 전국 실시간 정보</title>
+<meta name="description" content="전국 사회복지현장실습 기관 실시간 모집 현황">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-emoji">🌱</span>
+      <span>
+        사회복지현장실습
+        <span class="logo-sub">SOCIAL WELFARE FIELD PRACTICUM</span>
+      </span>
+    </a>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="index.html">사이트 소개</a></li>
+        <li><a href="apply.html">실습 과목 신청</a></li>
+        <li><a href="realtime.html" class="active">실시간 실습 정보</a></li>
+      </ul>
+    </nav>
+    <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+  </div>
+</header>
+
+<main>
+  <section class="page-hero">
+    <div class="container">
+      <span class="eyebrow">전국 현장실습 실시간 정보</span>
+      <h1>전국 실습생 모집 게시판</h1>
+      <p class="lead">
+        한국사회복지사협회 게시판의 최신 공고를 실시간으로 확인 가능합니다.
+        <br>
+        제목을 클릭하여 상세정보를 확인할 수 있습니다.
+      </p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="container">
+
+      <div class="region-chips" id="region-chips"></div>
+
+      <div class="filter-bar">
+        <input type="text" id="search-input" placeholder="🔍 기관명 또는 제목 검색">
+        <select id="category-select">
+          <option value="all">시설분류 전체</option>
+          <option value="사회복지시설">사회복지시설</option>
+          <option value="장기요양">장기요양</option>
+          <option value="기관/단체">기관/단체</option>
+          <option value="학교">학교</option>
+          <option value="의료기관">의료기관</option>
+          <option value="관공서/공공기관">관공서/공공기관</option>
+          <option value="기타">기타</option>
+        </select>
+        <span id="result-count" style="font-size:0.85rem; color: var(--text-light); font-weight:600;"></span>
+        <span class="live-dot"><span class="dot"></span> LIVE <span id="last-updated"></span></span>
+      </div>
+
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <colgroup>
+            <col style="width:6%;">
+            <col style="width:7%;">
+            <col style="width:12%;">
+            <col style="width:41%;">
+            <col style="width:22%;">
+            <col style="width:12%;">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>번호</th>
+              <th>지역</th>
+              <th>시설분류</th>
+              <th>제목</th>
+              <th>기관명</th>
+              <th>등록일</th>
+            </tr>
+          </thead>
+          <tbody id="realtime-body"></tbody>
+        </table>
+        <div class="empty-state" id="empty-state">
+          🔍 검색 조건에 맞는 모집 공고가 없습니다. 다른 지역이나 키워드로 검색해보세요.
+        </div>
+      </div>
+
+      <div class="pagination" id="pagination"></div>
+
+      <p class="update-note">본 목록은 한국사회복지사협회 현장실습센터(welfare.net) 실습모집 게시판의 공개 API를 페이지 로드 시점에 직접 호출하여 표시하는 실제 데이터입니다(최신 300건). 새로고침할 때마다 그 시점의 최신 등록 현황으로 갱신됩니다.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="logo">
+          <span class="logo-emoji">🌱</span>
+          <span>사회복지현장실습</span>
+        </div>
+        <p>예비 사회복지사를 위한 현장실습 정보 플랫폼입니다. 신청부터 실시간 현황까지 한 번에 확인하세요.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>바로가기</h4>
+          <ul>
+            <li><a href="index.html">사이트 소개</a></li>
+            <li><a href="apply.html">실습 과목 신청</a></li>
+            <li><a href="realtime.html">실시간 실습 정보</a></li>
+              </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2026 사회복지현장실습 정보센터. All rights reserved.
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

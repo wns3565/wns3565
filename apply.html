@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>사회복지현장실습 정보 | 과목 신청</title>
+<meta name="description" content="사회복지현장실습 과목 온라인 신청">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-emoji">🌱</span>
+      <span>
+        사회복지현장실습
+        <span class="logo-sub">SOCIAL WELFARE FIELD PRACTICUM</span>
+      </span>
+    </a>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="index.html">사이트 소개</a></li>
+        <li><a href="apply.html" class="active">실습 과목 신청</a></li>
+        <li><a href="realtime.html">실시간 실습 정보</a></li>
+      </ul>
+    </nav>
+    <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+  </div>
+</header>
+
+<main>
+  <section class="page-hero">
+    <div class="container">
+      <span class="eyebrow">STEP 1. 온라인 신청</span>
+      <h1>사회복지현장실습 과목 신청</h1>
+      <p class="lead">
+        아래 신청서를 작성해주시면 담당자가 확인 후 희망 지역에 맞는
+        교육기관 안내를 도와드립니다. 영업일 기준 2~3일 내로 연락드립니다.
+      </p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="container">
+      <div class="form-wrap">
+        <form id="apply-form" novalidate>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="name">이름<span class="req">*</span></label>
+              <input type="text" id="name" name="name" placeholder="홍길동" required>
+              <small class="hint">실명을 입력해주세요.</small>
+            </div>
+            <div class="field">
+              <label for="phone">연락처<span class="req">*</span></label>
+              <input type="tel" id="phone" name="phone" placeholder="010-1234-5678" required>
+              <small class="hint">'-' 포함하여 입력해주세요.</small>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="region">희망 실습 지역<span class="req">*</span></label>
+              <select id="region" name="region" required>
+                <option value="">선택해주세요</option>
+                <option>서울</option><option>경기</option><option>인천</option>
+                <option>부산</option><option>대구</option><option>광주</option>
+                <option>대전</option><option>울산</option><option>강원</option>
+                <option>충북</option><option>충남</option><option>전북</option>
+                <option>전남</option><option>경북</option><option>경남</option>
+                <option>제주</option>
+              </select>
+              <small class="hint">실시간 정보 페이지에서 기관을 미리 확인해보세요.</small>
+            </div>
+            <div class="field">
+              <label for="period">희망 실습 기간 (시작 월)<span class="req">*</span></label>
+              <select id="period" name="period" required>
+                <option value="">선택해주세요</option>
+                <option>1월</option>
+                <option>2월</option>
+                <option>3월</option>
+                <option>4월</option>
+                <option>5월</option>
+                <option>6월</option>
+                <option>7월</option>
+                <option>8월</option>
+                <option>9월</option>
+                <option>10월</option>
+                <option>11월</option>
+                <option>12월</option>
+              </select>
+              <small class="hint">실습 기관 사정에 따라 조정될 수 있습니다.</small>
+            </div>
+          </div>
+
+          <div class="field full">
+            <label class="checkbox-row">
+              <input type="checkbox" id="agree" name="agree">
+              <span>[필수] 개인정보 수집·이용에 동의합니다. 수집된 정보는 실습기관 매칭 및 안내 목적으로만 사용됩니다.</span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">신청서 제출하기</button>
+
+          <div id="apply-msg" class="form-msg"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section class="block alt">
+    <div class="container">
+      <div class="section-head">
+        <h2>신청 전 확인해주세요</h2>
+      </div>
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="icon">📅</div>
+          <h3>신청 마감</h3>
+          <p>실습 시작 최소 4주 전까지 신청을 완료해주세요.<br>마감 임박 시 매칭이 어려울 수 있습니다.</p>
+        </div>
+        <div class="card">
+          <div class="icon">📚</div>
+          <h3>선 이수 과목</h3>
+          <p>필수 4과목 이상, 선택 2과목 이상<br>선 이수 과목을 이수했는지 확인해주세요.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="container">
+      <div class="help-banner">
+        <p>선 이수 과목을 이수했는지<br>잘 모르겠다면?</p>
+        <a href="https://open.kakao.com/o/spx4Yft" class="btn btn-kakao" target="_blank" rel="noopener noreferrer">💬 카카오톡으로 바로 물어보기</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="logo">
+          <span class="logo-emoji">🌱</span>
+          <span>사회복지현장실습</span>
+        </div>
+        <p>예비 사회복지사를 위한 현장실습 정보 플랫폼입니다. 신청부터 실시간 현황까지 한 번에 확인하세요.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>바로가기</h4>
+          <ul>
+            <li><a href="index.html">사이트 소개</a></li>
+            <li><a href="apply.html">실습 과목 신청</a></li>
+            <li><a href="realtime.html">실시간 실습 정보</a></li>
+              </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2026 사회복지현장실습 정보센터. All rights reserved.
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>
