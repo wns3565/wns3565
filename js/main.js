@@ -141,7 +141,7 @@ function initApplyForm() {
   });
 }
 
-/* ---------- 3. 전국 현장실습 실시간 정보 (GitHub Actions가 30분마다 welfare.net API를 대신 호출해 만든 data/realtime-data.json을 표시) ---------- */
+/* ---------- 3. 전국 현장실습 실시간 정보 (GitHub Actions가 3시간마다 welfare.net API를 대신 호출해 만든 data/realtime-data.json을 표시) ---------- */
 const REALTIME_DATA_URL = "data/realtime-data.json";
 const REALTIME_BOARD_URL = "https://www.welfare.net/prm/find-training-center/recruitment-trainees";
 
