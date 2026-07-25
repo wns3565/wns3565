@@ -329,15 +329,24 @@ section.block.alt {
 }
 
 .benefit-card {
-  padding: 40px 36px;
+  padding: 0;
+  overflow: hidden;
 }
 
-.benefit-card .icon {
-  width: 76px;
-  height: 76px;
-  font-size: 2.2rem;
-  border-radius: var(--radius-md);
-  margin-bottom: 22px;
+.benefit-image {
+  width: 100%;
+  aspect-ratio: 400 / 220;
+  line-height: 0;
+}
+
+.benefit-image svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.benefit-body {
+  padding: 36px 36px 40px;
 }
 
 .benefit-card h3 {
