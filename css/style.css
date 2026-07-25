@@ -319,6 +319,37 @@ section.block.alt {
   font-size: 0.92rem;
 }
 
+/* ---------- 다양한 혜택 페이지 (세로 나열, 큰 카드) ---------- */
+.benefits-list {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.benefit-card {
+  padding: 40px 36px;
+}
+
+.benefit-card .icon {
+  width: 76px;
+  height: 76px;
+  font-size: 2.2rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 22px;
+}
+
+.benefit-card h3 {
+  font-size: 1.6rem;
+  margin-bottom: 14px;
+}
+
+.benefit-card p {
+  font-size: 1.15rem;
+  line-height: 1.7;
+}
+
 /* ---------- 통계 ---------- */
 .stats {
   display: grid;
