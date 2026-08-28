@@ -6,36 +6,35 @@ on:
     - cron: "7 0-12 * * 1-5"
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
   update:
     runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL: https://larcpgjoclnztwuekzkd.supabase.co
+      SUPABASE_KEY: sb_publishable_kfzIvZ9tn1JMnV4pSToDTg_hPpLTQhB
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Fetch latest postings from welfare.net
+      - name: Fetch latest postings from welfare.net and upsert into Supabase
         run: |
           set -e
-          mkdir -p data /tmp/pages
+          mkdir -p /tmp/pages
+          now="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
           for page in $(seq 1 30); do
             curl -s "https://api.welfare.net/prm/na/ntt/selectNttList.do?bbsId=1703&searchType=orgNm&searchValue=&areaCode=&codeT=&pageIndex=10&currPage=${page}" \
-              | jq '[.nttListPaging.list[]? | {
+              | jq --arg now "$now" '[.nttListPaging.list[]? | {
+                  ntt_sn: .nttSn,
                   region: .areaNm,
                   category: .codeT,
                   title: .nttSj,
                   org: (.orgNm // .regNm),
                   date: (.regDt | gsub("\\."; "-")),
-                  nttSn: .nttSn
+                  fetched_at: $now
                 }]' > "/tmp/pages/page_${page}.json"
           done
-          jq -s '{ updatedAt: (now | strftime("%Y-%m-%dT%H:%M:%SZ")), items: add }' /tmp/pages/page_*.json > data/realtime-data.json
-
-      - name: Commit and push if changed
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/realtime-data.json
-          git diff --staged --quiet || git commit -m "chore: 실습 모집 게시판 데이터 자동 갱신"
-          git push
+          jq -s 'add' /tmp/pages/page_*.json > /tmp/pages/all.json
+          curl -s -o /dev/null -w "upsert status: %{http_code}\n" \
+            -X POST "${SUPABASE_URL}/rest/v1/realtime_postings" \
+            -H "apikey: ${SUPABASE_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_KEY}" \
+            -H "Content-Type: application/json" \
+            -H "Prefer: resolution=merge-duplicates,return=minimal" \
+            --data-binary @/tmp/pages/all.json

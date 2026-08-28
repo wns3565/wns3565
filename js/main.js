@@ -141,8 +141,9 @@ function initApplyForm() {
   });
 }
 
-/* ---------- 3. 전국 현장실습 실시간 정보 (GitHub Actions가 평일 오전 9시~오후 9시 매시간 welfare.net API를 대신 호출해 만든 data/realtime-data.json을 표시) ---------- */
-const REALTIME_DATA_URL = "data/realtime-data.json";
+/* ---------- 3. 전국 현장실습 실시간 정보 (Supabase realtime_postings 테이블에서 직접 조회) ---------- */
+const SUPABASE_URL = "https://larcpgjoclnztwuekzkd.supabase.co";
+const SUPABASE_KEY = "sb_publishable_kfzIvZ9tn1JMnV4pSToDTg_hPpLTQhB";
 const REALTIME_BOARD_URL = "https://www.welfare.net/prm/find-training-center/recruitment-trainees";
 
 function escapeHtml(str) {
@@ -152,10 +153,28 @@ function escapeHtml(str) {
 }
 
 async function fetchRealtimeData() {
-  const res = await fetch(`${REALTIME_DATA_URL}?t=${Date.now()}`);
-  if (!res.ok) throw new Error(`데이터 파일을 불러올 수 없습니다 (${res.status})`);
-  const data = await res.json();
-  return { items: data.items || [], updatedAt: data.updatedAt || null };
+  const url = `${SUPABASE_URL}/rest/v1/realtime_postings?select=*&order=date.desc,ntt_sn.desc&limit=300`;
+  const res = await fetch(url, {
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+    },
+  });
+  if (!res.ok) throw new Error(`데이터를 불러올 수 없습니다 (${res.status})`);
+  const rows = await res.json();
+  const items = rows.map((r) => ({
+    region: r.region,
+    category: r.category,
+    title: r.title,
+    org: r.org,
+    date: r.date,
+    nttSn: r.ntt_sn,
+  }));
+  let updatedAt = null;
+  rows.forEach((r) => {
+    if (r.fetched_at && (!updatedAt || r.fetched_at > updatedAt)) updatedAt = r.fetched_at;
+  });
+  return { items, updatedAt };
 }
 
 async function initRealtimePage() {
