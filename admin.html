@@ -89,6 +89,7 @@
           <th>연락처</th>
           <th>희망 지역</th>
           <th>희망 기간</th>
+          <th>관리</th>
         </tr>
       </thead>
       <tbody id="applications-body"></tbody>
@@ -125,15 +126,27 @@
     return d.toLocaleString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
   }
 
+  async function deleteApplication(id, btn) {
+    if (!confirm("이 신청 내역을 삭제할까요? 되돌릴 수 없습니다.")) return;
+    btn.disabled = true;
+    const { error } = await client.from("applications").delete().eq("id", id);
+    if (error) {
+      alert("삭제 실패: " + error.message);
+      btn.disabled = false;
+      return;
+    }
+    loadApplications();
+  }
+
   async function loadApplications() {
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:24px; color:var(--text-light);">불러오는 중...</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--text-light);">불러오는 중...</td></tr>`;
     const { data, error } = await client
       .from("applications")
       .select("*")
       .order("created_at", { ascending: false });
 
     if (error) {
-      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:24px; color:var(--text-light);">목록을 불러오지 못했습니다: ${escapeHtml(error.message)}</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--text-light);">목록을 불러오지 못했습니다: ${escapeHtml(error.message)}</td></tr>`;
       return;
     }
 
@@ -146,7 +159,9 @@
         <td>${escapeHtml(row.phone)}</td>
         <td>${escapeHtml(row.region)}</td>
         <td>${escapeHtml(row.period)}</td>
+        <td><button type="button" class="btn btn-outline" style="padding:6px 14px; font-size:0.8rem;" data-id="${row.id}">삭제</button></td>
       `;
+      tr.querySelector("button").addEventListener("click", (e) => deleteApplication(row.id, e.currentTarget));
       tbody.appendChild(tr);
     });
     emptyState.style.display = (data || []).length === 0 ? "block" : "none";
