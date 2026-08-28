@@ -42,14 +42,11 @@ function clearFieldError(field) {
   }
 }
 
-/* ---------- 2. 과목 신청 폼 ---------- */
-const APPLY_GFORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeustQcV2vxAVRRRmehwwYMNZCYSEuAyrBXrDRFnu3AAbQXxQ/formResponse";
-const APPLY_GFORM_ENTRIES = {
-  name: "entry.2005620554",
-  phone: "entry.1166974658",
-  region: "entry.839337160",
-  period: "entry.817992894",
-};
+/* ---------- Supabase 프로젝트 공통 설정 ---------- */
+const SUPABASE_URL = "https://larcpgjoclnztwuekzkd.supabase.co";
+const SUPABASE_KEY = "sb_publishable_kfzIvZ9tn1JMnV4pSToDTg_hPpLTQhB";
+
+/* ---------- 2. 과목 신청 폼 (Supabase applications 테이블에 저장) ---------- */
 
 function initApplyForm() {
   const form = document.getElementById("apply-form");
@@ -115,19 +112,18 @@ function initApplyForm() {
     const submitBtn = form.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
 
-    const params = new URLSearchParams();
-    params.append(APPLY_GFORM_ENTRIES.name, name);
-    params.append(APPLY_GFORM_ENTRIES.phone, phone);
-    params.append(APPLY_GFORM_ENTRIES.region, region);
-    params.append(APPLY_GFORM_ENTRIES.period, period);
-
     try {
-      await fetch(APPLY_GFORM_URL, {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/applications`, {
         method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: params.toString(),
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+          "Content-Type": "application/json",
+          Prefer: "return=minimal",
+        },
+        body: JSON.stringify({ name, phone, region, period }),
       });
+      if (!res.ok) throw new Error(`status ${res.status}`);
       msgBox.className = "form-msg success";
       msgBox.textContent = `${name}님, 실습 과목 신청이 접수되었습니다. 담당자가 영업일 기준 2~3일 내 연락드립니다.`;
       form.reset();
@@ -142,8 +138,6 @@ function initApplyForm() {
 }
 
 /* ---------- 3. 전국 현장실습 실시간 정보 (Supabase realtime_postings 테이블에서 직접 조회) ---------- */
-const SUPABASE_URL = "https://larcpgjoclnztwuekzkd.supabase.co";
-const SUPABASE_KEY = "sb_publishable_kfzIvZ9tn1JMnV4pSToDTg_hPpLTQhB";
 const REALTIME_BOARD_URL = "https://www.welfare.net/prm/find-training-center/recruitment-trainees";
 
 function escapeHtml(str) {
