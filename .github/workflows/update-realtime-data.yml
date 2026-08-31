@@ -19,8 +19,11 @@ jobs:
           mkdir -p /tmp/pages
           now="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
           for page in $(seq 1 30); do
-            curl -s "https://api.welfare.net/prm/na/ntt/selectNttList.do?bbsId=1703&searchType=orgNm&searchValue=&areaCode=&codeT=&pageIndex=10&currPage=${page}" \
-              | jq --arg now "$now" '[.nttListPaging.list[]? | {
+            curl -sf \
+              -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36" \
+              -H "Accept: application/json" \
+              "https://api.welfare.net/prm/na/ntt/selectNttList.do?bbsId=1703&searchType=orgNm&searchValue=&areaCode=&codeT=&pageIndex=10&currPage=${page}" \
+              | jq -e --arg now "$now" '[.nttListPaging.list[] | {
                   ntt_sn: .nttSn,
                   region: .areaNm,
                   category: .codeT,
@@ -30,11 +33,25 @@ jobs:
                   fetched_at: $now
                 }]' > "/tmp/pages/page_${page}.json"
           done
+
           jq -s 'add' /tmp/pages/page_*.json > /tmp/pages/all.json
-          curl -s -o /dev/null -w "upsert status: %{http_code}\n" \
+          count="$(jq 'length' /tmp/pages/all.json)"
+          echo "fetched ${count} items"
+          if [ "${count}" -lt 1 ]; then
+            echo "::error::welfare.net에서 가져온 데이터가 0건입니다. 요청이 차단됐거나 응답 형식이 바뀌었을 수 있습니다."
+            exit 1
+          fi
+
+          status="$(curl -s -o /tmp/pages/upsert_response.json -w "%{http_code}" \
             -X POST "${SUPABASE_URL}/rest/v1/realtime_postings" \
             -H "apikey: ${SUPABASE_KEY}" \
             -H "Authorization: Bearer ${SUPABASE_KEY}" \
             -H "Content-Type: application/json" \
             -H "Prefer: resolution=merge-duplicates,return=minimal" \
-            --data-binary @/tmp/pages/all.json
+            --data-binary @/tmp/pages/all.json)"
+          echo "upsert status: ${status}"
+          cat /tmp/pages/upsert_response.json || true
+          if [ "${status}" -lt 200 ] || [ "${status}" -ge 300 ]; then
+            echo "::error::Supabase upsert 실패 (status ${status})"
+            exit 1
+          fi
