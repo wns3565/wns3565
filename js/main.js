@@ -2,10 +2,14 @@
 // 사회복지현장실습 정보 사이트 - 공통 스크립트
 // =========================================================
 
+// 카카오 개발자 사이트에서 발급한 JavaScript 키(공개용)를 입력하세요.
+const KAKAO_JS_KEY = "a8e4188ba17b546533e7fd5907bbcaf5";
+
 document.addEventListener("DOMContentLoaded", () => {
   initNavToggle();
   initApplyForm();
   initRealtimePage();
+  initNationwidePage();
   initContactForm();
 });
 
@@ -171,6 +175,39 @@ async function fetchRealtimeData() {
   return { items, updatedAt };
 }
 
+/* ---------- 공통 페이지네이션 ---------- */
+function buildPagination(wrap, currentPage, totalPages, windowSize, onGo) {
+  wrap.innerHTML = "";
+  if (totalPages <= 1) return;
+
+  const makeBtn = (label, page, opts = {}) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = label;
+    if (opts.active) btn.classList.add("active");
+    if (opts.disabled) btn.disabled = true;
+    btn.addEventListener("click", () => onGo(Math.min(Math.max(page, 1), totalPages)));
+    return btn;
+  };
+
+  const windowStart = Math.floor((currentPage - 1) / windowSize) * windowSize + 1;
+  const windowEnd = Math.min(windowStart + windowSize - 1, totalPages);
+
+  wrap.appendChild(makeBtn("처음", 1, { disabled: currentPage === 1 }));
+  wrap.appendChild(makeBtn("이전", currentPage - 1, { disabled: currentPage === 1 }));
+  for (let p = windowStart; p <= windowEnd; p++) {
+    wrap.appendChild(makeBtn(String(p), p, { active: p === currentPage }));
+  }
+  if (windowEnd < totalPages) {
+    const span = document.createElement("span");
+    span.className = "ellipsis";
+    span.textContent = "…";
+    wrap.appendChild(span);
+  }
+  wrap.appendChild(makeBtn("다음", currentPage + 1, { disabled: currentPage === totalPages }));
+  wrap.appendChild(makeBtn("마지막", totalPages, { disabled: currentPage === totalPages }));
+}
+
 async function initRealtimePage() {
   const tbody = document.getElementById("realtime-body");
   if (!tbody) return;
@@ -186,6 +223,7 @@ async function initRealtimePage() {
   const PAGE_SIZE = 15;
   const PAGE_WINDOW = 10;
 
+  const initialRegion = new URLSearchParams(location.search).get("region");
   let activeRegion = "전체";
   let realtimeData = [];
   let currentPage = 1;
@@ -203,10 +241,11 @@ async function initRealtimePage() {
   }
 
   const regions = ["전체", ...new Set(realtimeData.map((d) => d.region))];
+  if (initialRegion && regions.includes(initialRegion)) activeRegion = initialRegion;
   regions.forEach((region) => {
     const chip = document.createElement("button");
     chip.type = "button";
-    chip.className = "region-chip" + (region === "전체" ? " active" : "");
+    chip.className = "region-chip" + (region === activeRegion ? " active" : "");
     chip.textContent = region;
     chip.addEventListener("click", () => {
       activeRegion = region;
@@ -220,43 +259,10 @@ async function initRealtimePage() {
 
   function renderPagination(totalItems) {
     const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
-    paginationWrap.innerHTML = "";
-    if (totalPages <= 1) return;
-
-    const goTo = (page) => {
-      currentPage = Math.min(Math.max(page, 1), totalPages);
+    buildPagination(paginationWrap, currentPage, totalPages, PAGE_WINDOW, (page) => {
+      currentPage = page;
       render();
-    };
-
-    const makeBtn = (label, page, opts = {}) => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.textContent = label;
-      if (opts.active) btn.classList.add("active");
-      if (opts.disabled) btn.disabled = true;
-      btn.addEventListener("click", () => goTo(page));
-      return btn;
-    };
-
-    const windowStart = Math.floor((currentPage - 1) / PAGE_WINDOW) * PAGE_WINDOW + 1;
-    const windowEnd = Math.min(windowStart + PAGE_WINDOW - 1, totalPages);
-
-    paginationWrap.appendChild(makeBtn("처음", 1, { disabled: currentPage === 1 }));
-    paginationWrap.appendChild(makeBtn("이전", currentPage - 1, { disabled: currentPage === 1 }));
-
-    for (let p = windowStart; p <= windowEnd; p++) {
-      paginationWrap.appendChild(makeBtn(String(p), p, { active: p === currentPage }));
-    }
-
-    if (windowEnd < totalPages) {
-      const span = document.createElement("span");
-      span.className = "ellipsis";
-      span.textContent = "…";
-      paginationWrap.appendChild(span);
-    }
-
-    paginationWrap.appendChild(makeBtn("다음", currentPage + 1, { disabled: currentPage === totalPages }));
-    paginationWrap.appendChild(makeBtn("마지막", totalPages, { disabled: currentPage === totalPages }));
+    });
   }
 
   function render() {
@@ -318,7 +324,245 @@ async function initRealtimePage() {
   render();
 }
 
-/* ---------- 4. 문의남기기 폼 ---------- */
+/* ---------- 4. 전국 실습 정보 (실습기관 선정 현황) ---------- */
+async function initNationwidePage() {
+  const tbody = document.getElementById("center-body");
+  if (!tbody) return;
+
+  const areaSel = document.getElementById("f-area");
+  const guguSel = document.getElementById("f-gugu");
+  const codeSel = document.getElementById("f-code");
+  const statusSel = document.getElementById("f-status");
+  const typeSel = document.getElementById("f-type");
+  const keywordInput = document.getElementById("f-keyword");
+  const form = document.getElementById("center-filter");
+  const countLabel = document.getElementById("center-count");
+  const emptyState = document.getElementById("center-empty");
+  const paginationWrap = document.getElementById("center-pagination");
+  const updatedLabel = document.getElementById("center-updated");
+  const downloadBtn = document.getElementById("center-download");
+
+  const PAGE_SIZE = 20;
+  const PAGE_WINDOW = 10;
+  // 행 배열: [관리번호, 지역, 시군구, 시설분류, 기관명, 선정상태, 실습비용, 주소, 전화, 선정유효기간]
+  let rows = [];
+  let filtered = [];
+  let currentPage = 1;
+
+  tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:32px; color:var(--text-light);">데이터를 불러오는 중입니다...</td></tr>`;
+  try {
+    const res = await fetch("data/training-centers.json");
+    if (!res.ok) throw new Error(res.status);
+    const json = await res.json();
+    rows = json.rows;
+    if (json.updatedAt) {
+      const d = new Date(json.updatedAt);
+      updatedLabel.textContent = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
+    }
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:32px; color:var(--text-light);">데이터를 불러오지 못했습니다. 잠시 후 새로고침해주세요.</td></tr>`;
+    return;
+  }
+
+  const areas = [...new Set(rows.map((r) => r[1]))].sort((a, b) => a.localeCompare(b, "ko"));
+  areas.forEach((a) => areaSel.add(new Option(a, a)));
+
+  function refreshGugu() {
+    guguSel.length = 1;
+    const area = areaSel.value;
+    if (!area) return;
+    const set = new Set(rows.filter((r) => r[1] === area && r[2]).map((r) => r[2]));
+    [...set].sort((a, b) => a.localeCompare(b, "ko")).forEach((g) => guguSel.add(new Option(g, g)));
+  }
+
+  function formatAmount(n) {
+    return n == null ? "-" : `${Number(n).toLocaleString("ko-KR")}원`;
+  }
+
+  function render() {
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    currentPage = Math.min(currentPage, totalPages);
+    const startIdx = (currentPage - 1) * PAGE_SIZE;
+
+    tbody.innerHTML = "";
+    filtered.slice(startIdx, startIdx + PAGE_SIZE).forEach((r, i) => {
+      const tr = document.createElement("tr");
+      const stopped = r[5] !== "정상";
+      tr.innerHTML = `
+        <td>${startIdx + i + 1}</td>
+        <td>${escapeHtml(r[0])}</td>
+        <td>${escapeHtml(r[1])}</td>
+        <td>${escapeHtml(r[2])}</td>
+        <td>${escapeHtml(r[3])}</td>
+        <td class="center-name">${escapeHtml(r[4])}</td>
+        <td><span class="status-badge${stopped ? " stopped" : ""}">${escapeHtml(r[5])}</span></td>
+        <td>${escapeHtml(formatAmount(r[6]))}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    countLabel.textContent = filtered.length.toLocaleString("ko-KR");
+    emptyState.style.display = filtered.length === 0 ? "block" : "none";
+    buildPagination(paginationWrap, currentPage, totalPages, PAGE_WINDOW, (page) => {
+      currentPage = page;
+      render();
+    });
+  }
+
+  /* ----- 지도 보기 (카카오지도) ----- */
+  const listView = document.getElementById("center-list-view");
+  const mapView = document.getElementById("center-map-view");
+  const mapBox = document.getElementById("center-map");
+  const mapMsg = document.getElementById("center-map-msg");
+  const viewTabs = document.querySelectorAll(".view-tab");
+  let activeView = "list";
+  let mapReady = null;
+  let map = null;
+  let clusterer = null;
+  let infoWindow = null;
+  let geo = null;
+  const markerCache = new Map();
+
+  function loadKakaoSdk() {
+    return new Promise((resolve, reject) => {
+      if (window.kakao && window.kakao.maps) return kakao.maps.load(resolve);
+      const sc = document.createElement("script");
+      sc.src = "https://dapi.kakao.com/v2/maps/sdk.js?appkey=" + encodeURIComponent(KAKAO_JS_KEY) + "&libraries=clusterer&autoload=false";
+      sc.onload = () => kakao.maps.load(resolve);
+      sc.onerror = () => reject(new Error("sdk"));
+      document.head.appendChild(sc);
+    });
+  }
+
+  function ensureMap() {
+    if (mapReady) return mapReady;
+    mapReady = (async () => {
+      if (!KAKAO_JS_KEY) throw new Error("nokey");
+      const res = await fetch("data/training-geo.json");
+      if (!res.ok) throw new Error("nogeo");
+      geo = await res.json();
+      await loadKakaoSdk();
+      map = new kakao.maps.Map(mapBox, { center: new kakao.maps.LatLng(36.4, 127.8), level: 12 });
+      map.addControl(new kakao.maps.ZoomControl(), kakao.maps.ControlPosition.RIGHT);
+      clusterer = new kakao.maps.MarkerClusterer({ map, averageCenter: true, minLevel: 6 });
+      infoWindow = new kakao.maps.InfoWindow({ removable: true, zIndex: 3 });
+    })();
+    mapReady.catch(() => { mapReady = null; });
+    return mapReady;
+  }
+
+  function markerFor(r) {
+    let m = markerCache.get(r[0]);
+    if (m) return m;
+    const pos = geo[r[0]];
+    if (!pos) return null;
+    m = new kakao.maps.Marker({ position: new kakao.maps.LatLng(pos[0], pos[1]), title: r[4] });
+    kakao.maps.event.addListener(m, "click", () => {
+      infoWindow.setContent(
+        '<div class="map-info"><strong>' + escapeHtml(r[4]) + "</strong>" +
+        "<span>" + escapeHtml(r[3]) + " · " + escapeHtml(r[5]) + "</span>" +
+        "<span>" + escapeHtml(r[7] || "주소 정보 없음") + "</span>" +
+        (r[8] ? "<span>☎ " + escapeHtml(r[8]) + "</span>" : "") +
+        "<span>실습비용 " + escapeHtml(formatAmount(r[6])) + "</span></div>"
+      );
+      infoWindow.open(map, m);
+    });
+    markerCache.set(r[0], m);
+    return m;
+  }
+
+  async function renderMap() {
+    mapMsg.hidden = false;
+    mapMsg.textContent = "지도를 불러오는 중입니다...";
+    try {
+      await ensureMap();
+    } catch (err) {
+      mapMsg.textContent = err.message === "nokey"
+        ? "지도 서비스를 준비 중입니다."
+        : "지도를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.";
+      return;
+    }
+    map.relayout();
+    infoWindow.close();
+    clusterer.clear();
+    const markers = [];
+    const bounds = new kakao.maps.LatLngBounds();
+    filtered.forEach((r) => {
+      const m = markerFor(r);
+      if (m) {
+        markers.push(m);
+        bounds.extend(m.getPosition());
+      }
+    });
+    clusterer.addMarkers(markers);
+    if (markers.length) map.setBounds(bounds);
+    mapMsg.hidden = false;
+    mapMsg.textContent = markers.length === filtered.length
+      ? "지도에 " + markers.length.toLocaleString("ko-KR") + "곳을 표시했습니다. 마커나 숫자를 눌러보세요."
+      : "조회결과 " + filtered.length.toLocaleString("ko-KR") + "곳 중 위치 정보가 있는 " + markers.length.toLocaleString("ko-KR") + "곳을 표시했습니다.";
+  }
+
+  viewTabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      activeView = tab.dataset.view;
+      viewTabs.forEach((t) => t.classList.toggle("active", t === tab));
+      listView.hidden = activeView !== "list";
+      mapView.hidden = activeView !== "map";
+      if (activeView === "map") renderMap();
+    });
+  });
+
+  function applyFilter() {
+    const area = areaSel.value;
+    const gugu = guguSel.value;
+    const code = codeSel.value;
+    const status = statusSel.value;
+    const keyword = keywordInput.value.trim().toLowerCase();
+    const byNo = typeSel.value === "no";
+
+    filtered = rows.filter((r) =>
+      (!area || r[1] === area) &&
+      (!gugu || r[2] === gugu) &&
+      (!code || r[3] === code) &&
+      (!status || r[5] === status) &&
+      (!keyword || (byNo ? r[0] : r[4]).toLowerCase().includes(keyword))
+    );
+    currentPage = 1;
+    render();
+    if (activeView === "map") renderMap();
+  }
+
+  areaSel.addEventListener("change", () => {
+    refreshGugu();
+    applyFilter();
+  });
+  [guguSel, codeSel, statusSel].forEach((el) => el.addEventListener("change", applyFilter));
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    applyFilter();
+  });
+
+  downloadBtn.addEventListener("click", () => {
+    const header = ["번호", "관리번호", "지역", "시군구", "시설분류", "기관명", "선정상태", "실습비용", "주소", "전화번호", "선정유효기간"];
+    const quote = (v) => `"${String(v == null ? "" : v).replace(/"/g, '""')}"`;
+    const lines = [header.map(quote).join(",")];
+    filtered.forEach((r, i) => {
+      lines.push([i + 1, r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9]].map(quote).join(","));
+    });
+    const blob = new Blob([String.fromCharCode(0xFEFF) + lines.join(String.fromCharCode(13, 10))], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "실습기관_선정현황.csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(a.href);
+  });
+
+  applyFilter();
+}
+
+/* ---------- 5. 문의남기기 폼 ---------- */
 function initContactForm() {
   const form = document.getElementById("contact-form");
   if (!form) return;

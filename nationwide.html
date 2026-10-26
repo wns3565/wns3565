@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>사회복지현장실습 정보 | 전국 실습 정보</title>
+<meta name="description" content="전국 지역별 사회복지현장실습 모집 현황">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-emoji">🌱</span>
+      <span>
+        사회복지현장실습
+        <span class="logo-sub">SOCIAL WELFARE FIELD PRACTICUM</span>
+      </span>
+    </a>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="index.html">사이트 소개</a></li>
+        <li><a href="apply.html">실습 과목 신청</a></li>
+        <li><a href="realtime.html">실시간 실습 정보</a></li>
+        <li><a href="nationwide.html" class="active">전국 실습 정보</a></li>
+        <li><a href="benefits.html">다양한 혜택</a></li>
+      </ul>
+    </nav>
+    <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+  </div>
+</header>
+
+<main>
+  <section class="page-hero">
+    <div class="container">
+      <span class="eyebrow">전국 현장실습기관 선정 현황</span>
+      <h1>전국 실습 정보</h1>
+      <p class="lead">
+        현재 실습기관으로 선정된 전국의 기관을 지역, 시설분류, 기관명으로 검색해보세요.
+      </p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="container">
+
+      <div class="info-box">
+        <ul>
+          <li>현재 실습기관으로 선정된 기관 목록입니다. 검색 결과는 엑셀에서 열 수 있는 CSV 파일로 내려받을 수 있습니다.</li>
+          <li>선정 기관·지도자인데 목록에서 확인되지 않는 경우에는 자격관리본부(02-786-0845)로 문의해주세요.</li>
+          <li>실습기관의 장애인 편의시설 제공 여부는 복지로 홈페이지의 복지지도 → 편의시설에서 확인하실 수 있습니다.</li>
+          <li>선정이 취소된 기관은 목록에 표시되지 않습니다.</li>
+        </ul>
+        <div class="info-box-actions">
+          <button type="button" id="center-download" class="btn btn-primary">검색 결과 다운로드(CSV)</button>
+        </div>
+      </div>
+
+      <form class="center-filter" id="center-filter">
+        <div class="center-filter-row">
+          <select id="f-area" aria-label="지역">
+            <option value="">전국</option>
+          </select>
+          <select id="f-gugu" aria-label="시군구">
+            <option value="">시군구 전체</option>
+          </select>
+          <select id="f-code" aria-label="시설분류">
+            <option value="">시설분류 전체</option>
+            <option value="사회복지시설">사회복지시설</option>
+            <option value="장기요양">장기요양</option>
+            <option value="기관/단체">기관/단체</option>
+            <option value="학교">학교</option>
+            <option value="의료기관">의료기관</option>
+            <option value="관공서/공공기관">관공서/공공기관</option>
+            <option value="기타">기타</option>
+          </select>
+          <select id="f-status" aria-label="선정상태">
+            <option value="">선정상태 전체</option>
+            <option value="정상">정상</option>
+            <option value="정지">정지</option>
+          </select>
+        </div>
+        <div class="center-filter-row">
+          <select id="f-type" class="center-filter-type" aria-label="검색 구분">
+            <option value="org">기관명</option>
+            <option value="no">관리번호</option>
+          </select>
+          <input type="text" id="f-keyword" placeholder="검색어를 입력하세요." autocomplete="off">
+          <button type="submit" class="btn btn-primary center-filter-submit">🔍 검색</button>
+        </div>
+      </form>
+
+      <div class="view-tabs">
+        <button type="button" class="view-tab active" data-view="list">📋 목록으로 보기</button>
+        <button type="button" class="view-tab" data-view="map">🗺️ 지도로 보기</button>
+      </div>
+
+      <p class="center-count-line">조회결과 <strong id="center-count">0</strong>건</p>
+
+      <div id="center-map-view" hidden>
+        <div id="center-map"></div>
+        <p class="center-map-msg" id="center-map-msg"></p>
+      </div>
+
+      <div id="center-list-view">
+      <div class="data-table-wrap">
+        <table class="data-table center-table">
+          <colgroup>
+            <col style="width:6%;">
+            <col style="width:14%;">
+            <col style="width:7%;">
+            <col style="width:10%;">
+            <col style="width:12%;">
+            <col style="width:29%;">
+            <col style="width:9%;">
+            <col style="width:13%;">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>번호</th>
+              <th>관리번호</th>
+              <th>지역</th>
+              <th>시군구</th>
+              <th>시설분류</th>
+              <th>기관명</th>
+              <th>선정상태</th>
+              <th>실습비용</th>
+            </tr>
+          </thead>
+          <tbody id="center-body"></tbody>
+        </table>
+        <div class="empty-state" id="center-empty">
+          🔍 검색 조건에 맞는 실습기관이 없습니다. 다른 조건으로 검색해보세요.
+        </div>
+      </div>
+
+      <div class="pagination" id="center-pagination"></div>
+      </div>
+
+      <p class="update-note">본 목록은 한국사회복지사협회 현장실습센터(welfare.net)의 실습기관 선정 현황을 수집한 자료이며, 기준일은 <span id="center-updated">-</span>입니다. 가장 최신 내용은 <a href="https://www.welfare.net/prm/find-training-center/current-stat" target="_blank" rel="noopener noreferrer" class="post-link">원본 페이지</a>에서 확인해주세요.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="logo">
+          <span class="logo-emoji">🌱</span>
+          <span>사회복지현장실습</span>
+        </div>
+        <p>예비 사회복지사를 위한 현장실습 정보 플랫폼입니다. 신청부터 실시간 현황까지 한 번에 확인하세요.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>바로가기</h4>
+          <ul>
+            <li><a href="index.html">사이트 소개</a></li>
+            <li><a href="apply.html">실습 과목 신청</a></li>
+            <li><a href="realtime.html">실시간 실습 정보</a></li>
+            <li><a href="nationwide.html">전국 실습 정보</a></li>
+            <li><a href="benefits.html">다양한 혜택</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2026 사회복지현장실습 정보센터. All rights reserved.
+      <a href="admin.html" style="color:inherit; opacity:0.45; margin-left:10px; text-decoration:none;">관리자</a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>
