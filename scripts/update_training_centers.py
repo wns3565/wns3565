@@ -53,6 +53,7 @@ def main():
             r["orgAddr"] or "",
             r["orgTel"] or "",
             r["ptcorgValidDate"] or "",
+            r["ptcorgReqstNo"],
         ])
     out.sort(key=lambda x: x[4])
     payload = {"updatedAt": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "rows": out}

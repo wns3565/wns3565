@@ -394,7 +394,9 @@ async function initNationwidePage() {
         <td>${escapeHtml(r[1])}</td>
         <td>${escapeHtml(r[2])}</td>
         <td>${escapeHtml(r[3])}</td>
-        <td class="center-name">${escapeHtml(r[4])}</td>
+        <td class="center-name">${r[10]
+          ? `<a class="post-link" href="https://www.welfare.net/prm/find-training-center/current-stat-detail?mngNo=${encodeURIComponent(r[0])}&requestNo=${encodeURIComponent(r[10])}" target="_blank" rel="noopener noreferrer">${escapeHtml(r[4])}</a>`
+          : escapeHtml(r[4])}</td>
         <td><span class="status-badge${stopped ? " stopped" : ""}">${escapeHtml(r[5])}</span></td>
         <td>${escapeHtml(formatAmount(r[6]))}</td>
       `;
