@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initApplyForm();
   initRealtimePage();
   initNationwidePage();
+  initContactGuide();
   initContactForm();
 });
 
@@ -340,7 +341,6 @@ async function initNationwidePage() {
   const emptyState = document.getElementById("center-empty");
   const paginationWrap = document.getElementById("center-pagination");
   const updatedLabel = document.getElementById("center-updated");
-  const downloadBtn = document.getElementById("center-download");
 
   const PAGE_SIZE = 20;
   const PAGE_WINDOW = 10;
@@ -542,24 +542,19 @@ async function initNationwidePage() {
     applyFilter();
   });
 
-  downloadBtn.addEventListener("click", () => {
-    const header = ["번호", "관리번호", "지역", "시군구", "시설분류", "기관명", "선정상태", "실습비용", "주소", "전화번호", "선정유효기간"];
-    const quote = (v) => `"${String(v == null ? "" : v).replace(/"/g, '""')}"`;
-    const lines = [header.map(quote).join(",")];
-    filtered.forEach((r, i) => {
-      lines.push([i + 1, r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9]].map(quote).join(","));
-    });
-    const blob = new Blob([String.fromCharCode(0xFEFF) + lines.join(String.fromCharCode(13, 10))], { type: "text/csv;charset=utf-8" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "실습기관_선정현황.csv";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(a.href);
-  });
-
   applyFilter();
+}
+
+/* ---------- 실습처 연락방법 안내 펼치기 ---------- */
+function initContactGuide() {
+  const btn = document.getElementById("contact-guide-btn");
+  const panel = document.getElementById("contact-guide");
+  if (!btn || !panel) return;
+  btn.addEventListener("click", () => {
+    const open = panel.hidden;
+    panel.hidden = !open;
+    btn.setAttribute("aria-expanded", String(open));
+  });
 }
 
 /* ---------- 5. 문의남기기 폼 ---------- */

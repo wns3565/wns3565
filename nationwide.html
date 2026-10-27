@@ -47,13 +47,73 @@
 
       <div class="info-box">
         <ul>
-          <li>현재 실습기관으로 선정된 기관 목록입니다. 검색 결과는 엑셀에서 열 수 있는 CSV 파일로 내려받을 수 있습니다.</li>
+          <li>현재 실습기관으로 선정된 기관 목록입니다.</li>
           <li>선정 기관·지도자인데 목록에서 확인되지 않는 경우에는 자격관리본부(02-786-0845)로 문의해주세요.</li>
           <li>실습기관의 장애인 편의시설 제공 여부는 복지로 홈페이지의 복지지도 → 편의시설에서 확인하실 수 있습니다.</li>
           <li>선정이 취소된 기관은 목록에 표시되지 않습니다.</li>
         </ul>
-        <div class="info-box-actions">
-          <button type="button" id="center-download" class="btn btn-primary">검색 결과 다운로드(CSV)</button>
+        <div class="contact-guide-toggle">
+          <button type="button" id="contact-guide-btn" class="btn btn-primary" aria-expanded="false" aria-controls="contact-guide">현장 실습처 구할 때 연락방법 <span class="guide-arrow" aria-hidden="true">▼</span></button>
+        </div>
+        <div class="contact-guide" id="contact-guide" hidden>
+          <h3>실습 문의 전화 스크립트</h3>
+
+          <section class="guide-step">
+            <h4>1. 도입 및 통화 가능 여부 확인</h4>
+            <p class="guide-desc">담당자가 프로그램 진행이나 상담 중일 수 있으므로 통화 가능 여부를 먼저 묻는 것이 좋습니다.</p>
+            <p class="guide-line student"><strong>학생</strong>"안녕하세요, [기관명] 맞으실까요? 이번 학기 사회복지현장실습 문의차 연락드렸습니다. 혹시 실습 담당 선생님과 통화 가능할까요?"</p>
+            <p class="guide-note">(담당자 연결 후)</p>
+            <p class="guide-line student"><strong>학생</strong>"안녕하세요 담당자님, 바쁘신 와중에 죄송합니다. 잠시 실습 관련해서 1~2분 정도 통화 가능하실까요?"</p>
+          </section>
+
+          <section class="guide-step">
+            <h4>2. 소속 및 핵심 정보 전달 (두괄식)</h4>
+            <p class="guide-desc">담당자가 가장 먼저 확인해야 하는 3가지(교육원/과정, 희망 일정, 실습 형태)를 바로 전달합니다.</p>
+            <p class="guide-line student"><strong>학생</strong>"감사합니다. 저는 [교육원명] 사회복지 과정 진행 중인 [이름]이라고 합니다.<br>다름이 아니라, 이번 [예: 20XX년 X월 ~ X월] 기간 동안 진행되는 현장실습생을 모집하시는지 여쭙고자 연락드렸습니다.<br>저는 총 [160시간] 이수 대상자이며, [평일 주 5일 실습 / 주말 실습]을 희망하고 있습니다."</p>
+          </section>
+
+          <section class="guide-step">
+            <h4>3. 기관 상황에 따른 분기 대화</h4>
+
+            <h5>상황 A: 실습생을 모집 중인 경우</h5>
+            <p class="guide-line staff"><strong>담당자</strong>"네, 이번에 실습생 모집 계획이 있습니다."</p>
+            <p class="guide-line student"><strong>학생</strong>"감사합니다! 혹시 신청서나 프로파일 접수 마감일이 정해져 있을까요? 서류는 기관 홈페이지 양식으로 이메일 제출하면 되는지 확인 부탁드립니다."</p>
+            <p class="guide-note">(필요 시 추가 질문)</p>
+            <p class="guide-line student"><strong>학생</strong>"제출 후 면접이나 별도 선발 절차가 어떻게 진행되는지도 함께 알려주시면 준비에 큰 도움이 될 것 같습니다."</p>
+
+            <h5>상황 B: 이미 마감되었거나 이번 학기 계획이 없는 경우</h5>
+            <p class="guide-line staff"><strong>담당자</strong>"죄송하지만 이번 차수는 이미 마감되었거나(또는 실습 지도를 하지 않습니다)."</p>
+            <p class="guide-line student"><strong>학생</strong>"아, 그렇군요! 확인해 주셔서 감사합니다. 바쁘신 업무 중에 시간 내어 응대해 주셔서 진심으로 감사드립니다. 좋은 하루 보내세요."</p>
+            <p class="guide-note">(아쉬워도 정중하게 마무리하여 기관에 좋은 인상을 남깁니다.)</p>
+
+            <h5>상황 C: 담당자가 부재중이거나 통화가 어려운 경우</h5>
+            <p class="guide-line staff"><strong>직원/담당자</strong>"지금 담당자가 자리에 없어서요 / 지금은 통화가 조금 어렵습니다."</p>
+            <p class="guide-line student"><strong>학생</strong>"네, 알겠습니다. 혹시 담당자님께서 편하신 시간대에 제가 다시 연락을 드려도 될까요? 아니면 문의 사항을 남겨둘 수 있는 실습 문의용 이메일이 있을까요?"</p>
+          </section>
+
+          <section class="guide-step guide-check">
+            <h4>전화 전/중 체크리스트</h4>
+
+            <h5>1. 피해야 할 전화 시간대</h5>
+            <ul>
+              <li>오전 09:00 ~ 10:00 (오전 업무 시작 및 회의 시간)</li>
+              <li>점심시간 12:00 ~ 13:00</li>
+              <li>퇴근 직전 17:30 이후</li>
+              <li><strong>가장 좋은 시간대: 오전 10:30 ~ 11:30 또는 오후 14:00 ~ 16:00</strong></li>
+            </ul>
+
+            <h5>2. 통화 전 메모장에 미리 적어둘 내용</h5>
+            <ul>
+              <li>본인의 정확한 실습 희망 일정 (시작 가능일 ~ 종료일)</li>
+              <li>필수 이수 시간 (구법 120시간 vs 개정법 160시간)</li>
+              <li>세미나 출석 일정 등 기관 출근이 불가능한 요일 유무</li>
+            </ul>
+
+            <h5>3. 담당자에게 신뢰를 주는 포인트</h5>
+            <ul>
+              <li>기관 유형(종합복지관, 노인, 아동 등)을 미리 파악하고 "평소 [노인 복지 / 지역사회 복지]에 관심이 많아 지원하고자 합니다"라는 한 문장을 덧붙이면 긍정적인 인상을 줍니다.</li>
+            </ul>
+          </section>
         </div>
       </div>
 
