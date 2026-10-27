@@ -145,8 +145,14 @@
           <select id="f-type" class="center-filter-type" aria-label="검색 구분">
             <option value="org">기관명</option>
             <option value="no">관리번호</option>
+            <option value="cost">실습비용</option>
           </select>
           <input type="text" id="f-keyword" placeholder="검색어를 입력하세요." autocomplete="off">
+          <div class="center-cost-range" id="cost-range" hidden>
+            <input type="text" id="f-cost-min" inputmode="numeric" placeholder="최소 금액 (원)" autocomplete="off" aria-label="최소 실습비용">
+            <span>~</span>
+            <input type="text" id="f-cost-max" inputmode="numeric" placeholder="최대 금액 (원)" autocomplete="off" aria-label="최대 실습비용">
+          </div>
           <button type="submit" class="btn btn-primary center-filter-submit">🔍 검색</button>
         </div>
       </form>

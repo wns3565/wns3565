@@ -336,6 +336,9 @@ async function initNationwidePage() {
   const statusSel = document.getElementById("f-status");
   const typeSel = document.getElementById("f-type");
   const keywordInput = document.getElementById("f-keyword");
+  const costRange = document.getElementById("cost-range");
+  const costMinInput = document.getElementById("f-cost-min");
+  const costMaxInput = document.getElementById("f-cost-max");
   const form = document.getElementById("center-filter");
   const countLabel = document.getElementById("center-count");
   const emptyState = document.getElementById("center-empty");
@@ -377,6 +380,12 @@ async function initNationwidePage() {
 
   function formatAmount(n) {
     return n == null ? "-" : `${Number(n).toLocaleString("ko-KR")}원`;
+  }
+
+  // "150,000" 같은 입력에서 숫자만 읽는다. 비어 있으면 null
+  function parseAmount(text) {
+    const digits = text.replace(/[^0-9]/g, "");
+    return digits ? Number(digits) : null;
   }
 
   function render() {
@@ -519,15 +528,20 @@ async function initNationwidePage() {
     const gugu = guguSel.value;
     const code = codeSel.value;
     const status = statusSel.value;
-    const keyword = keywordInput.value.trim().toLowerCase();
+    const byCost = typeSel.value === "cost";
     const byNo = typeSel.value === "no";
+    const keyword = byCost ? "" : keywordInput.value.trim().toLowerCase();
+    const costMin = byCost ? parseAmount(costMinInput.value) : null;
+    const costMax = byCost ? parseAmount(costMaxInput.value) : null;
+    const costFilter = costMin !== null || costMax !== null;
 
     filtered = rows.filter((r) =>
       (!area || r[1] === area) &&
       (!gugu || r[2] === gugu) &&
       (!code || r[3] === code) &&
       (!status || r[5] === status) &&
-      (!keyword || (byNo ? r[0] : r[4]).toLowerCase().includes(keyword))
+      (!keyword || (byNo ? r[0] : r[4]).toLowerCase().includes(keyword)) &&
+      (!costFilter || (r[6] != null && (costMin === null || r[6] >= costMin) && (costMax === null || r[6] <= costMax)))
     );
     currentPage = 1;
     render();
@@ -539,6 +553,13 @@ async function initNationwidePage() {
     applyFilter();
   });
   [guguSel, codeSel, statusSel].forEach((el) => el.addEventListener("change", applyFilter));
+  typeSel.addEventListener("change", () => {
+    const byCost = typeSel.value === "cost";
+    keywordInput.hidden = byCost;
+    costRange.hidden = !byCost;
+    (byCost ? costMinInput : keywordInput).focus();
+    applyFilter();
+  });
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     applyFilter();

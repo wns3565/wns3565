@@ -997,6 +997,15 @@ table.data-table tbody tr:last-child td {
 .center-filter-type { flex: 0 0 120px; }
 .center-filter input[type="text"] { flex: 1 1 200px; }
 .center-filter-submit { flex: 0 0 auto; }
+.center-cost-range {
+  flex: 1 1 200px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-light);
+}
+.center-cost-range[hidden] { display: none; }
+.center-cost-range input[type="text"] { flex: 1 1 0; min-width: 0; }
 .center-count-line {
   margin-bottom: 10px;
   font-size: 0.95rem;
