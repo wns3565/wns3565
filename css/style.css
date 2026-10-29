@@ -1120,6 +1120,13 @@ table.data-table tbody tr:last-child td {
   color: var(--text-mid);
 }
 .map-info strong { color: var(--green-900); font-size: 0.95rem; }
+.map-info-name {
+  color: var(--green-700, var(--green-600));
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: underline;
+}
+.map-info-name:hover { color: var(--green-900); }
 @media (max-width: 720px) {
   #center-map { height: 420px; }
 }

@@ -403,6 +403,12 @@ async function initNationwidePage() {
     return digits ? Number(digits) : null;
   }
 
+  function detailUrl(r) {
+    return r[10]
+      ? `https://www.welfare.net/prm/find-training-center/current-stat-detail?mngNo=${encodeURIComponent(r[0])}&requestNo=${encodeURIComponent(r[10])}`
+      : "";
+  }
+
   function render() {
     const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
     currentPage = Math.min(currentPage, totalPages);
@@ -418,8 +424,8 @@ async function initNationwidePage() {
         <td>${escapeHtml(r[1])}</td>
         <td>${escapeHtml(r[2])}</td>
         <td>${escapeHtml(operationLabel(r[0]))}</td>
-        <td class="center-name">${r[10]
-          ? `<a class="post-link" href="https://www.welfare.net/prm/find-training-center/current-stat-detail?mngNo=${encodeURIComponent(r[0])}&requestNo=${encodeURIComponent(r[10])}" target="_blank" rel="noopener noreferrer">${escapeHtml(r[4])}</a>`
+        <td class="center-name">${detailUrl(r)
+          ? `<a class="post-link" href="${detailUrl(r)}" target="_blank" rel="noopener noreferrer">${escapeHtml(r[4])}</a>`
           : escapeHtml(r[4])}</td>
         <td><span class="status-badge${stopped ? " stopped" : ""}">${escapeHtml(r[5])}</span></td>
         <td>${escapeHtml(formatAmount(r[6]))}</td>
@@ -485,7 +491,10 @@ async function initNationwidePage() {
     m = new kakao.maps.Marker({ position: new kakao.maps.LatLng(pos[0], pos[1]), title: r[4] });
     kakao.maps.event.addListener(m, "click", () => {
       infoWindow.setContent(
-        '<div class="map-info"><strong>' + escapeHtml(r[4]) + "</strong>" +
+        '<div class="map-info">' +
+        (detailUrl(r)
+          ? '<a class="map-info-name" href="' + detailUrl(r) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(r[4]) + " ›</a>"
+          : "<strong>" + escapeHtml(r[4]) + "</strong>") +
         "<span>" + escapeHtml(r[3]) + " · " + escapeHtml(r[5]) + "</span>" +
         "<span>" + escapeHtml(r[7] || "주소 정보 없음") + "</span>" +
         (r[8] ? "<span>☎ " + escapeHtml(r[8]) + "</span>" : "") +
