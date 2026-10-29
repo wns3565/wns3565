@@ -163,6 +163,11 @@
       <p class="center-count-line">조회결과 <strong id="center-count">0</strong>건</p>
 
       <div id="center-map-view" hidden>
+        <form class="my-address-form" id="my-address-form">
+          <input type="text" id="my-address" placeholder="내 주소를 입력하세요. (예: 서울 영등포구 문래로20길 60)" autocomplete="off" aria-label="내 주소">
+          <button type="submit" class="btn btn-primary">📍 내 위치 찍기</button>
+        </form>
+        <p class="my-address-msg" id="my-address-msg" hidden></p>
         <div id="center-map"></div>
         <p class="center-map-msg" id="center-map-msg"></p>
       </div>

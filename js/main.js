@@ -453,7 +453,7 @@ async function initNationwidePage() {
     return new Promise((resolve, reject) => {
       if (window.kakao && window.kakao.maps) return kakao.maps.load(resolve);
       const sc = document.createElement("script");
-      sc.src = "https://dapi.kakao.com/v2/maps/sdk.js?appkey=" + encodeURIComponent(KAKAO_JS_KEY) + "&libraries=clusterer&autoload=false";
+      sc.src = "https://dapi.kakao.com/v2/maps/sdk.js?appkey=" + encodeURIComponent(KAKAO_JS_KEY) + "&libraries=clusterer,services&autoload=false";
       sc.onload = () => kakao.maps.load(resolve);
       sc.onerror = () => reject(new Error("sdk"));
       document.head.appendChild(sc);
@@ -527,6 +527,55 @@ async function initNationwidePage() {
       ? "지도에 " + markers.length.toLocaleString("ko-KR") + "곳을 표시했습니다. 마커나 숫자를 눌러보세요."
       : "조회결과 " + filtered.length.toLocaleString("ko-KR") + "곳 중 위치 정보가 있는 " + markers.length.toLocaleString("ko-KR") + "곳을 표시했습니다.";
   }
+
+  /* ----- 내 주소 핀 ----- */
+  const addressForm = document.getElementById("my-address-form");
+  const addressInput = document.getElementById("my-address");
+  const addressMsg = document.getElementById("my-address-msg");
+  let myPin = null;
+
+  function searchAddress(query) {
+    return new Promise((resolve) => {
+      const done = (data, status) => resolve(status === kakao.maps.services.Status.OK && data.length ? data[0] : null);
+      new kakao.maps.services.Geocoder().addressSearch(query, (data, status) => {
+        if (status === kakao.maps.services.Status.OK && data.length) return done(data, status);
+        // 주소로 못 찾으면 건물·장소 이름으로 한 번 더 찾는다
+        new kakao.maps.services.Places().keywordSearch(query, done);
+      });
+    });
+  }
+
+  function showAddressMsg(text) {
+    addressMsg.hidden = false;
+    addressMsg.textContent = text;
+  }
+
+  addressForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const query = addressInput.value.trim();
+    if (!query) return showAddressMsg("주소를 입력해주세요.");
+    showAddressMsg("주소를 찾는 중입니다...");
+    try {
+      await ensureMap();
+    } catch (err) {
+      return showAddressMsg("지도를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.");
+    }
+    const found = await searchAddress(query);
+    if (!found) return showAddressMsg("주소를 찾지 못했습니다. 도로명이나 지번 주소를 조금 더 자세히 입력해보세요.");
+    const pos = new kakao.maps.LatLng(Number(found.y), Number(found.x));
+    if (myPin) myPin.setMap(null);
+    myPin = new kakao.maps.CustomOverlay({
+      position: pos,
+      yAnchor: 1,
+      zIndex: 5,
+      content: '<div class="my-pin"><span class="my-pin-icon">📍</span><span class="my-pin-label">내 위치</span></div>',
+    });
+    myPin.setMap(map);
+    map.relayout();
+    map.setLevel(5);
+    map.setCenter(pos);
+    showAddressMsg("내 위치를 지도에 표시했습니다. 주변의 실습기관 마커를 눌러 확인해보세요.");
+  });
 
   viewTabs.forEach((tab) => {
     tab.addEventListener("click", () => {
