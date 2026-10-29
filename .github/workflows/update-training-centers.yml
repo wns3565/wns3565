@@ -26,11 +26,15 @@ jobs:
         continue-on-error: true
         run: python3 scripts/geocode_centers.py
 
+      - name: Fetch operation types (new centers only)
+        continue-on-error: true
+        run: python3 scripts/update_operation_types.py
+
       - name: Commit and push if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/training-centers.json data/training-geo.json
+          git add data/training-centers.json data/training-geo.json data/training-operation.json
           if git diff --cached --quiet; then
             echo "변경 사항이 없습니다."
             exit 0

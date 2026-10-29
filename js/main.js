@@ -332,7 +332,7 @@ async function initNationwidePage() {
 
   const areaSel = document.getElementById("f-area");
   const guguSel = document.getElementById("f-gugu");
-  const codeSel = document.getElementById("f-code");
+  const operSel = document.getElementById("f-oper");
   const statusSel = document.getElementById("f-status");
   const typeSel = document.getElementById("f-type");
   const keywordInput = document.getElementById("f-keyword");
@@ -349,6 +349,7 @@ async function initNationwidePage() {
   const PAGE_WINDOW = 10;
   // 행 배열: [관리번호, 지역, 시군구, 시설분류, 기관명, 선정상태, 실습비용, 주소, 전화, 선정유효기간]
   let rows = [];
+  let operation = {}; // 관리번호 -> [요청번호, 운영방식 비트값] (1 주중, 2 주말, 4 야간, 8 방학중 여름, 16 방학중 겨울)
   let filtered = [];
   let currentPage = 1;
 
@@ -358,6 +359,12 @@ async function initNationwidePage() {
     if (!res.ok) throw new Error(res.status);
     const json = await res.json();
     rows = json.rows;
+    try {
+      const opRes = await fetch("data/training-operation.json");
+      if (opRes.ok) operation = await opRes.json();
+    } catch (err) {
+      operation = {};
+    }
     if (json.updatedAt) {
       const d = new Date(json.updatedAt);
       updatedLabel.textContent = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
@@ -382,6 +389,14 @@ async function initNationwidePage() {
     return n == null ? "-" : `${Number(n).toLocaleString("ko-KR")}원`;
   }
 
+  const OPERATION_LABELS = [[1, "주중"], [2, "주말"], [4, "야간"], [8, "방학중(여름)"], [16, "방학중(겨울)"]];
+
+  function operationLabel(mngNo) {
+    const mask = operation[mngNo] ? operation[mngNo][1] : 0;
+    const names = OPERATION_LABELS.filter(([bit]) => mask & bit).map(([, name]) => name);
+    return names.length ? names.join(", ") : "-";
+  }
+
   // "150,000" 같은 입력에서 숫자만 읽는다. 비어 있으면 null
   function parseAmount(text) {
     const digits = text.replace(/[^0-9]/g, "");
@@ -402,7 +417,7 @@ async function initNationwidePage() {
         <td>${escapeHtml(r[0])}</td>
         <td>${escapeHtml(r[1])}</td>
         <td>${escapeHtml(r[2])}</td>
-        <td>${escapeHtml(r[3])}</td>
+        <td>${escapeHtml(operationLabel(r[0]))}</td>
         <td class="center-name">${r[10]
           ? `<a class="post-link" href="https://www.welfare.net/prm/find-training-center/current-stat-detail?mngNo=${encodeURIComponent(r[0])}&requestNo=${encodeURIComponent(r[10])}" target="_blank" rel="noopener noreferrer">${escapeHtml(r[4])}</a>`
           : escapeHtml(r[4])}</td>
@@ -526,7 +541,7 @@ async function initNationwidePage() {
   function applyFilter() {
     const area = areaSel.value;
     const gugu = guguSel.value;
-    const code = codeSel.value;
+    const oper = Number(operSel.value) || 0;
     const status = statusSel.value;
     const byCost = typeSel.value === "cost";
     const byNo = typeSel.value === "no";
@@ -538,7 +553,7 @@ async function initNationwidePage() {
     filtered = rows.filter((r) =>
       (!area || r[1] === area) &&
       (!gugu || r[2] === gugu) &&
-      (!code || r[3] === code) &&
+      (!oper || (operation[r[0]] && (operation[r[0]][1] & oper))) &&
       (!status || r[5] === status) &&
       (!keyword || (byNo ? r[0] : r[4]).toLowerCase().includes(keyword)) &&
       (!costFilter || (r[6] != null && (costMin === null || r[6] >= costMin) && (costMax === null || r[6] <= costMax)))
@@ -552,7 +567,7 @@ async function initNationwidePage() {
     refreshGugu();
     applyFilter();
   });
-  [guguSel, codeSel, statusSel].forEach((el) => el.addEventListener("change", applyFilter));
+  [guguSel, operSel, statusSel].forEach((el) => el.addEventListener("change", applyFilter));
   typeSel.addEventListener("change", () => {
     const byCost = typeSel.value === "cost";
     keywordInput.hidden = byCost;
